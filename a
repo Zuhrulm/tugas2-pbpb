@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prakiraan Cuaca Jakarta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f7f9fc;
+            color: #333;
+        }
+        h2 {
+            color: #2c3e50;
+        }
+        p {
+            color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e1e8ed;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f1f6fa;
+        }
+        .loading {
+            text-align: center;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Prakiraan Cuaca Per Jam - Jakarta</h2>
+    <p>Menampilkan 10 data pertama suhu per jam berdasarkan koordinat latitude -6.2 dan longitude 106.8.</p>
+
+    <table id="weatherTable">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Waktu (time)</th>
+                <th>Temperatur (°C)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="3" class="loading">Memuat data cuaca...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        const apiUrl = 'https://api.open-meteo.com/v1/forecast?latitude=-6.2&longitude=106.8&hourly=temperature_2m';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const times = data.hourly.time;
+                const temperatures = data.hourly.temperature_2m;
+                const tbody = document.querySelector('#weatherTable tbody');
+                
+                tbody.innerHTML = '';
+
+                const limit = 10;
+                for (let i = 0; i < limit && i < times.length; i++) {
+                    const row = document.createElement('tr');
+                    
+                    const formattedTime = times[i].replace('T', ' ');
+                    
+                    row.innerHTML = `
+                        <td>${i + 1}</td>
+                        <td>${formattedTime}</td>
+                        <td>${temperatures[i]} °C</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            })
+            .catch(error => {
+                console.error('Terjadi kesalahan:', error);
+                const tbody = document.querySelector('#weatherTable tbody');
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: red;">Gagal memuat data dari API.</td></tr>`;
+            });
+    </script>
+
+</body>
+</html>
